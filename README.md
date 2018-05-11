@@ -245,7 +245,7 @@ Let's first update the configuration and add the line:
 ```
 default_authentication_plugin=mysql_native_password
 ```
-to all instances (the configuration are located at ~$HOME/mysql-sandboxes/$PORT/my.cnf. Make sure you update all 3 nodes.
+to all instances (the configuration are located at ~$HOME/mysql-sandboxes/$PORT/my.cnf. Make sure you update all 3 nodes (in folders 3310, 3320 and 3330).
 
 Once you have added this line the the configuraton of all instances start the mysql shell
 ```
@@ -256,15 +256,15 @@ and restart the MySQL instances one at a time by running:
 mysqlsh> dba.stopSandboxInstance(3310);
 mysqlsh> dba.startSandboxInstance(3310);
 ```
-Password of all MySQL instances is 'root', this is needed to stop ths instnace.
+Password of all MySQL instances is 'root', this is needed to stop the MySQL instance.
 
-Look at status of your cluster after each node restart!
+Look at status of your cluster after each node restart, what is happening with the Primary/RW Role?
 ```
 mysqlsh> \c 'root'@127.0.0.1:3320
 mysqlsh> cluster = dba.getCluster();
 mysqlsh> cluster.status();
 ```
-You need to connect to a running node betwen restarts to see status of the cluster.
+You need to connect to a running MySQL instance between restarts to see status of the cluster.
 
 Next step is to update our 'root' user to use old plugin, start the mysql client:
 ```
