@@ -85,6 +85,7 @@ If you want to monitor your instances during initial create and failover test la
 ```
 bash$ watch "pgrep -fla mysql | grep -v pgrep"
 ```
+##### Create MySQL Instances
 
 Before we create our 3 MySQL instances using `deploy.js` lets have a quick look at the content of this file:
 ```
@@ -101,6 +102,8 @@ bash$ mysqlsh < ./scripts/deploy.js
 
 You should now have 3 MySQL instances up and running and you should see 3 folders (3310,3320 and 3330) in folder ~$HOME/mysql-sandboxes.
 You can find the MySQL configuration file (my.cnf) under each folder, have a look at this file before we move on.
+
+##### Create the InnoDB cluster
 
 Next step is to create our cluster by running the `create.js` script, before we run this lets have a loot at the content of this file:
 ```
@@ -143,7 +146,11 @@ cluster.status();
 ```
 State of last node should now be `ONLINE`
 
-Next step depends on what version of MySQL you are testing, if you are running MySQL 5.7 or MySQL 8.0.4 (or earlier) you need to make sure configuration changes made by create cluster commands are persisted. If you are on a late MySQL 8 version this step is not needed as MySQL 8 support `SET PERSISTS` and will update the MySQL configuration automatically instead of the using the `dba.configureLocalInstance` command.
+##### Persist cluster configuration in local MySQL configuration files (Only needed for MySQL 5.7)
+
+Next step depends on what version of MySQL you are testing, if you are running MySQL 5.7 or MySQL 8.0.4 (or earlier) you need to make sure configuration changes made by create cluster commands are persisted.
+
+If you are on a GA version of MySQL 8 this step is not needed as MySQL 8 now support `SET PERSISTS` and will update the local MySQL configuration automatically instead of the using the `dba.configureLocalInstance` command via shell.
 
 Make sure configuration changes are persisted if you are running any MySQL version prior to 8.0.4:
 ```
@@ -153,5 +160,8 @@ You can run above command on later versions of MySQL 8 also but you will then ge
 ```
 Calling this function on a cluster member is only required for MySQL versions 8.0.4 or earlier.
 ```
+
+##### Start MySQL Router
+
 
 
