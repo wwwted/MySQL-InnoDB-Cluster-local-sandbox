@@ -132,6 +132,17 @@ Please note that sandbox instances are only suitable for deploying test clusters
     },
 ```
 
+Hmmm, looks like the last node of the cluster was still in state `RECOVERING` when we looked at status of the cluster, lets connect to our cluster and investigate this:
+```
+bash$ mysqlsh -uroot -proot -h127.0.0.1 -P3330
+```
+When loged into shell run:
+```
+cluster = dba.getCluster();
+cluster.status();
+```
+State of last node should now be `ONLINE`
+
 Next step depends on what version of MySQL you are testing, if you are running MySQL 5.7 or MySQL 8.0.4 (or earlier) you need to make sure configuration changes made by create cluster commands are persisted. If you are on a late MySQL 8 version this step is not needed as MySQL 8 support `SET PERSISTS` and will update the MySQL configuration automatically instead of the using the `dba.configureLocalInstance` command.
 
 Make sure configuration changes are persisted if you are running any MySQL version prior to 8.0.4:
