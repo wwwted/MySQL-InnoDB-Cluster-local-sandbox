@@ -200,12 +200,40 @@ once connected run:
 create database test;
 ```
 
-Try to start the python script:
+Try to start the python script in a new window/prompt, it will continue to run forever (you can stop it via Ctrl-C):
 ```
 python ./scripts/failover-demo.py 6446
 ```
 If you get an error like "Authentication plugin 'caching_sha2_password' is not supported", see Note 1) below
 
+Output from the failover script should be:
+```
+ted@speedy:~/gitrepos/MySQL-InnoDB-Cluster-local-sandbox$ python ./scripts/failover-demo.py 6446
+Starting to insert data into MySQL on port: 6446
+inside  connect()
+Hostname:speedy : 3310 ;  John:6 Doe
+Hostname:speedy : 3310 ;  John:7 Doe
+Hostname:speedy : 3310 ;  John:8 Doe
+Hostname:speedy : 3310 ;  John:9 Doe
+Hostname:speedy : 3310 ;  John:7 Doe
+Hostname:speedy : 3310 ;  John:8 Doe
+Hostname:speedy : 3310 ;  John:9 Doe
+Hostname:speedy : 3310 ;  John:11 Doe
+Hostname:speedy : 3310 ;  John:8 Doe
+Hostname:speedy : 3310 ;  John:9 Doe
+```
+The script inserts one new employee every iteration and selects the last 5 employees at each iteration. The output also includes the variables (@@HOSTNAME and @@PORT) so we can see the instance we are connected to.
+
+==================== CONT HERE ..
+
+# Kill the primary RW
+# Recover the node
+
+# Monitoring IDc
+- Look at meta data tables
+- PS tables around GR
+
+Test with old 5.7 and look at configuration files for instances before/after persist command ....
 
 
 ##### Note 1) Problems running script on MySQL due to new authentication plugin (only for MySQL 8)
