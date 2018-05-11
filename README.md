@@ -191,3 +191,83 @@ Try to connect to port 6447 and run the same command, try multiple times and see
 
 ##### Test failover
 
+There is a small python script than can be used to test what happens at failover, the script need the test database to be created before we can start it, connect to the R/W port of router:
+```
+mysql -uroot -proot -P6446 -h127.0.0.1
+``` 
+once connected run:
+```
+create database test;
+```
+
+Try to start the python script:
+```
+python ./scripts/failover-demo.py 6446
+```
+If you get an error like "Authentication plugin 'caching_sha2_password' is not supported", see Note 1) below
+
+
+
+##### Note 1) Problems running script on MySQL due to new authentication plugin (only for MySQL 8)
+If you get an error like "Authentication plugin 'caching_sha2_password' is not supported" this means you have python connecter that does not support the new authentication plugn in MySQL 8, no worries, this is true for many 3rd party connectors at the moment and can be solved by configuring MySQL to use old password auth plugin and change plugin for user 'root'.
+
+Run commands below to start using old authentication plugin and set this as plugin for existing 'root' account. It should be enough to set the authentication method for the 'root' account but it looks like the python connector is also looking at MySQL setting for parameter `default_authentication_plugin` and aborts with error message above if this is set to "caching_sha2_password".
+
+Let's first update the configuration and add the line:
+```
+default_authentication_plugin=mysql_native_password
+```
+to all instances (the configuration are located at ~$HOME/mysql-sandboxes/$PORT/my.cnf. Make sure you update all 3 nodes.
+
+Once you have added this line the the configuraton of all instances start the mysql shell
+```
+mysqlsh
+```
+and restart the MySQL instances one at a time by running:
+```
+mysqlsh> dba.stopSandboxInstance(3310);
+mysqlsh> dba.startSandboxInstance(3310);
+```
+Password of all MySQL instances is 'root', this is needed to stop ths instnace.
+
+Look at status of your cluster after each node restart!
+```
+mysqlsh> \c 'root'@127.0.0.1:3320
+mysqlsh> cluster = dba.getCluster();
+mysqlsh> cluster.status();
+```
+You need to connect to a running node betwen restarts to see status of the cluster.
+
+Next step is to update our 'root' user to use old plugin, start the mysql client:
+```
+mysql -uroot -proot -P6446 -h127.0.0.1
+```
+and then update both 'root' accounts:
+```
+mysql> ALTER USER 'root'@'%' IDENTIFIED WITH mysql_native_password BY 'root';
+mysql> ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'root';
+```
+
+If you still have problems running start the MySQL client via router like:
+```
+mysql -uroot -proot -P6446 -h127.0.0.1
+```
+and look at output from commands below, they should look like:
+```
+mysql> show global variables like 'default_authentication_plugin';
++-------------------------------+-----------------------+
+| Variable_name                 | Value                 |
++-------------------------------+-----------------------+
+| default_authentication_plugin | mysql_native_password |
++-------------------------------+-----------------------+
+
+mysql> select user,host,plugin from mysql.user where user='root';
++------+-----------+-----------------------+
+| user | host      | plugin                |
++------+-----------+-----------------------+
+| root | %         | mysql_native_password |
+| root | localhost | mysql_native_password |
++------+-----------+-----------------------+
+```
+
+
