@@ -163,5 +163,31 @@ Calling this function on a cluster member is only required for MySQL versions 8.
 
 ##### Start MySQL Router
 
+Next step is to start the MySQL router that will handle application failover. To avoid tedious work creating configuration files you can run the `mysqlrouter`binary with option --bootstrap and router will connect to the specified node and extract information needed to build the configuratin from internal mysql_innodb_cluster_metadata schema.
 
+```
+mysqlrouter --bootstrap localhost:3310 -d myrouter
+```
+Provide password to MySQL instance 3310 when prompted for this (should be 'root').
+
+After this command completes you should se a new folder myrouter, in this folder you wil find the configuration created for router and scripts for starting and stopping router.
+
+Lets start the router:
+```
+./myrouter/start.sh
+```
+Verify that router started and look inside the newly created logfile `myrouter/log/mysqlrouter.log`
+
+Router (as seen from configuration file) opens 2 ports, one for RW operations and one for RO operatons (6447), connect to router on RW port like:
+```
+mysql -uroot -proot -P6446 -h127.0.0.1
+```
+To what MySQL instance are you connnected? It should be 3310 that is the PRIMARY (R/W). Run command below to verify port number of instance:
+```
+mysql> SELECT @@PORT;
+```
+
+Try to connect to port 6447 and run the same command, try multiple times and see what happens.
+
+##### Test failover
 
