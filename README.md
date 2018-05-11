@@ -7,6 +7,7 @@ Further reading:
 - https://dev.mysql.com/doc/refman/8.0/en/mysql-innodb-cluster-userguide.html
 - https://dev.mysql.com/doc/refman/8.0/en/mysql-innodb-cluster-sandbox-deployment.html
 
+This demo works for both MySQL 5.7 as well as for MySQL 8, there are some small differences that will be highlighted later on. Note that MySQL Router 8 and MySQL Shell 8 works for MySQL also and I highly recomend using latest versions of MySQL Shell and MySQL Router.
 
 ### Setup environment
 
@@ -80,7 +81,7 @@ mysqlsh>dba.help();
 
 In this exercise when you use the sandbox commands for creating our cluster we can leverage that MySQL Shell can also create, configure and start our MySQL instances. These instances will be created underneith ~home/mysql-sandboxes and named by the port number you specify when creating your instances (in our case this will be 3310, 3320 and 3330).
 
-If you want to monitor what is happening when creating your instances I would suggest you start a new screen/prompt and run:
+If you want to monitor your instances during initial create and failover test later on I would suggest you start a new screen/prompt and run:
 ```
 bash$ watch "pgrep -fla mysql | grep -v pgrep"
 ```
@@ -91,10 +92,55 @@ dba.deploySandboxInstance(3310,{password:'root'});
 dba.deploySandboxInstance(3320,{password:'root'});
 dba.deploySandboxInstance(3330,{password:'root'});
 ```
+The dba.deploySandboxInstance will fire up a local MySQL instance, only mandatory argument is a port number, you can provide more informaion via a second argument being a JSON document, in this case we are specifying the password for the root account.
 
 Lets run deploy.js using shell to create our 3 MySQL instances:
 ```
-bash$ mysqlsh < deploy.js
+bash$ mysqlsh < ./scripts/deploy.js
+```
+
+You should now have 3 MySQL instances up and running and you should see 3 folders (3310,3320 and 3330) in folder ~$HOME/mysql-sandboxes.
+You can find the MySQL configuration file (my.cnf) under each folder, have a look at this file before we move on.
+
+Next step is to create our cluster by running the `create.js` script, before we run this lets have a loot at the content of this file:
+```
+cluster=dba.createCluster("mycluster");
+cluster.addInstance("root@127.0.0.1:3320",{password:'root'});
+cluster.addInstance("root@127.0.0.1:3330",{password:'root'});
+print (cluster.status());
+```
+The first command we use to create our cluster, this will be done on the MySQL we connect to when executing this script. Next we add the two other MySQL instances to our cluster using the addInstance command, before we exit we print the status of the cluster.  
+
+Lets run ths `create.js` and have a look at output from the commands:
+```
+bash$ mysqlsh -uroot -proot -h127.0.0.1 -P3310 < scripts/create.js
+
+A new InnoDB cluster will be created on instance 'root@127.0.0.1:3310'.
+
+Validating instance at 127.0.0.1:3310...
+Instance detected as a sandbox.
+Please note that sandbox instances are only suitable for deploying test clusters for use within the same host.
+...
+            "127.0.0.1:3330": {
+                "address": "127.0.0.1:3330", 
+                "mode": "R/O", 
+                "readReplicas": {}, 
+                "role": "HA", 
+                "status": "RECOVERING"
+            }
+        }
+    },
+```
+
+Next step depends on what version of MySQL you are testing, if you are running MySQL 5.7 or MySQL 8.0.4 (or earlier) you need to make sure configuration changes made by create cluster commands are persisted. If you are on a late MySQL 8 version this step is not needed as MySQL 8 support `SET PERSISTS` and will update the MySQL configuration automatically instead of the using the `dba.configureLocalInstance` command.
+
+Make sure configuration changes are persisted if you are running any MySQL version prior to 8.0.4:
+```
+mysqlsh -uroot -proot -h127.0.0.1 -P3310 < scripts/persist-config.js
+``` 
+You can run above command on later versions of MySQL 8 also but you will then get message like:
+```
+Calling this function on a cluster member is only required for MySQL versions 8.0.4 or earlier.
 ```
 
 
