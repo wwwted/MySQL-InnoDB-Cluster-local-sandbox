@@ -323,6 +323,7 @@ Then start the MySQL instance to have it joining the cluster again:
 ```
 mysqlsh> dba.startSandboxInstance(3310);
 ```
+Verify that old primary is now part of cluster again by looking at cluster.status() or data in table performance_schema.replication_group_members.
 
 ### Remove (to start over)
 If you want to remove your cluster and stop all MySQL instances simply run:
