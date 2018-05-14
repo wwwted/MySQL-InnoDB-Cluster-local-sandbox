@@ -66,7 +66,7 @@ bash$ which mysql
 bash$ which mysqlsh
 bash$ which mysqlrouter
 ``` 
-Output should be paths to your installed binaies.
+Output should be paths to your installed binaries.
 
 You can now also try to start MySQL Shell and verify that it works:
 ```
