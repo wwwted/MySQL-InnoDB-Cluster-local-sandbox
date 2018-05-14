@@ -189,7 +189,7 @@ mysql> SELECT @@PORT;
 
 Try to connect to port 6447 and run the same command, try multiple times and see what happens.
 
-##### Test failover using python application.
+### Test failover using python application.
 
 There is a small python script than can be used to test what happens at failover, the script need the test database to be created before we can start it, connect to the R/W port of router:
 ```
@@ -324,12 +324,31 @@ Then start the MySQL instance to have it joining the cluster again:
 mysqlsh> dba.startSandboxInstance(3310);
 ```
 
-# Monitoring InnoDB CLuster
+### Remove (to start over)
+If you want to remove your cluster and stop all MySQL instances simply run:
+```
+bash$ mysqlsh -uroot -proot -h127.0.0.1 -P3330 < ./scripts/remove.js
+bash$ ./myrouter/stop.sh
+bash$ rm -fr myrouter
+```
+
+The remove.js script will just stop the sandbox instances and the remove all data on disk using the delete command.
+```
+dba.stopSandboxInstance(3310,{password:'root'});
+dba.stopSandboxInstance(3320,{password:'root'});
+dba.stopSandboxInstance(3330,{password:'root'});
+dba.deleteSandboxInstance(3310);
+dba.deleteSandboxInstance(3320);
+dba.deleteSandboxInstance(3330);
+```
+After this you should be able to start from the beginning again.
+
+### Monitoring InnoDB CLuster
 As we have already tried out there are ways to monitor InnoDB Cluster and the state via eather via the `cluster.status()` command or by quering the performance_schema.replication_group_members table.
 
 MySQL Enterprise Monitor also have monitoring of InnoDB Cluster so you can track the state of your cluster and get alerts if there are problems.
 
-# Other tools
+### Other tools
 If you want to look at number of rows in the different MySQL instances during failover your can run:
 ```
 bash$ watch ./scripts/count.sh
