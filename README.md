@@ -355,6 +355,8 @@ If you want to look at number of rows in the different MySQL instances during fa
 bash$ watch ./scripts/count.sh
 ```
 
+[Commands for HA DEMO without all the explanations and text](https://gist.github.com/wwwted/f11062e47d5265ea386d6c0976cd7a06)
+
 ##### Note 1) Problems running script on MySQL due to new authentication plugin (only for MySQL 8)
 If you get an error like "Authentication plugin 'caching_sha2_password' is not supported" this means you have python connecter that does not support the new authentication plugn in MySQL 8, no worries, this is true for many 3rd party connectors at the moment and can be solved by configuring MySQL to use old password auth plugin and change plugin for user 'root'.
 
