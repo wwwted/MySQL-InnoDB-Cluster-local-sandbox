@@ -189,7 +189,7 @@ mysql> SELECT @@PORT;
 
 Try to connect to port 6447 and run the same command, try multiple times and see what happens.
 
-##### Test failover
+##### Test failover using python application.
 
 There is a small python script than can be used to test what happens at failover, the script need the test database to be created before we can start it, connect to the R/W port of router:
 ```
@@ -204,7 +204,7 @@ Try to start the python script in a new window/prompt, it will continue to run f
 ```
 python ./scripts/failover-demo.py 6446
 ```
-If you get an error like "Authentication plugin 'caching_sha2_password' is not supported", see Note 1) below
+If you get an error like "Authentication plugin 'caching_sha2_password' is not supported", see Note 1) below on how to fix this.
 
 Output from the failover script should be:
 ```
@@ -224,17 +224,116 @@ Hostname:speedy : 3310 ;  John:9 Doe
 ```
 The script inserts one new employee every iteration and selects the last 5 employees at each iteration. The output also includes the variables (@@HOSTNAME and @@PORT) so we can see the instance we are connected to.
 
-==================== CONT HERE ..
+Once you have the python script up and running (or if this does not work, use normal MySQL Client to mimic a real aplication connected to your database) we will now kill the Primary instance of our InnoDB Cluster.
 
-# Kill the primary RW
-# Recover the node
+Identify the port number of the `Primary` by starting the shell (`mysqlsh -uroot -proot -h127.0.0.1 -P6446`) and run:
+```
+mysqlsh> cluster = dba.getCluster();
+mysqlsh> cluster = cluster.status();
+```
+or by looking inside performance_schema like:
+```
+mysqlsh> \sql
+mysqlsh> select * from performance_schema.replication_group_members\G
+```
+To get back to java script simple type `mysqlsh> \js` (short for Python is \py).
 
-# Monitoring IDc
-- Look at meta data tables
-- PS tables around GR
+Now when we know which instance is Primary, get pid of that instance by running some processlisting like:
+```
+bash$ pgrep mysqld -fla
+```
+Identify the pid of of the instance with port number equal to the primary.
 
-Test with old 5.7 and look at configuration files for instances before/after persist command ....
+Lets kill the primary instance:
+```
+bash$ kill -9 <pif of primary instance>
+``` 
+You should see a small hickup in the output from the python application then the re-connect should have be triggered and the application should continue to work and output it's normal rows.
 
+Log into your InnoDB cluster and look at status of your cluster:
+```
+mysql> select * from performance_schema.replication_group_members\G
+*************************** 1. row ***************************
+  CHANNEL_NAME: group_replication_applier
+     MEMBER_ID: bb30d265-54f6-11e8-9445-ec21e522bf21
+   MEMBER_HOST: speedy
+   MEMBER_PORT: 3320
+  MEMBER_STATE: ONLINE
+   MEMBER_ROLE: PRIMARY
+MEMBER_VERSION: 8.0.11
+*************************** 2. row ***************************
+  CHANNEL_NAME: group_replication_applier
+     MEMBER_ID: c734a179-54f6-11e8-bcd8-ec21e522bf21
+   MEMBER_HOST: speedy
+   MEMBER_PORT: 3330
+  MEMBER_STATE: ONLINE
+   MEMBER_ROLE: SECONDARY
+MEMBER_VERSION: 8.0.11
+2 rows in set (0.0017 sec)
+```
+In my case the old primary was instance running on port 3310, this instance is not available anymore and new primary is instance running on port 3320.
+
+Looking at `cluster.status()` via the shell we see similar information:
+```
+mysqlsh> cluster=dba.getCluster();
+mysqlsh> cluster.status();
+{
+    "clusterName": "mycluster", 
+    "defaultReplicaSet": {
+        "name": "default", 
+        "primary": "127.0.0.1:3320", 
+        "ssl": "REQUIRED", 
+        "status": "OK_NO_TOLERANCE", 
+        "statusText": "Cluster is NOT tolerant to any failures. 1 member is not active", 
+        "topology": {
+            "127.0.0.1:3310": {
+                "address": "127.0.0.1:3310", 
+                "mode": "R/O", 
+                "readReplicas": {}, 
+                "role": "HA", 
+                "status": "(MISSING)"
+            }, 
+            "127.0.0.1:3320": {
+                "address": "127.0.0.1:3320", 
+                "mode": "R/W", 
+                "readReplicas": {}, 
+                "role": "HA", 
+                "status": "ONLINE"
+            }, 
+            "127.0.0.1:3330": {
+                "address": "127.0.0.1:3330", 
+                "mode": "R/O", 
+                "readReplicas": {}, 
+                "role": "HA", 
+                "status": "ONLINE"
+            }
+        }
+    }, 
+    "groupInformationSourceMember": "mysql://root@127.0.0.1:6446/performance_schema"
+}
+```
+Our old primary (port 3310 now have status MISSING).
+
+##### Recover old primary instance
+Steps for recovering a stopped/failed/missing instance are easy, first we need to start the MySQL instance, start MySQL Shell:
+```
+bash$ mysqlsh -uroot -proot -h127.0.0.1 -P6446
+```
+Then start the MySQL instance to have it joining the cluster again:
+```
+mysqlsh> dba.startSandboxInstance(3310);
+```
+
+# Monitoring InnoDB CLuster
+As we have already tried out there are ways to monitor InnoDB Cluster and the state via eather via the `cluster.status()` command or by quering the performance_schema.replication_group_members table.
+
+MySQL Enterprise Monitor also have monitoring of InnoDB Cluster so you can track the state of your cluster and get alerts if there are problems.
+
+# Other tools
+If you want to look at number of rows in the different MySQL instances during failover your can run:
+```
+bash$ watch ./scripts/count.sh
+```
 
 ##### Note 1) Problems running script on MySQL due to new authentication plugin (only for MySQL 8)
 If you get an error like "Authentication plugin 'caching_sha2_password' is not supported" this means you have python connecter that does not support the new authentication plugn in MySQL 8, no worries, this is true for many 3rd party connectors at the moment and can be solved by configuring MySQL to use old password auth plugin and change plugin for user 'root'.
@@ -297,5 +396,3 @@ mysql> select user,host,plugin from mysql.user where user='root';
 | root | localhost | mysql_native_password |
 +------+-----------+-----------------------+
 ```
-
-
