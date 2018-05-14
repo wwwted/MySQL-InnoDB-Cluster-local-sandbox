@@ -52,7 +52,7 @@ Create softlinks to binaries:
 ```
 bash$ ln -s mysql-8.0.11-linux-glibc2.12-x86_64 server
 bash$ ln -s mysql-shell-8.0.11-linux-glibc2.12-x86-64bit shell
-bash$ ln -s ln -s mysql-router-8.0.11-linux-glibc2.12-x86-64bit router
+bash$ ln -s mysql-router-8.0.11-linux-glibc2.12-x86-64bit router
 ```
 
 Last step in the preparations before we can start creating or cluster is to set the correct paths in our shell, this need to done in all windows/command line tools that you use to run commands in:
