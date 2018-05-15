@@ -172,7 +172,7 @@ mysqlrouter --bootstrap localhost:3310 -d myrouter
 ```
 Provide password to MySQL instance 3310 when prompted for this (should be 'root').
 
-After this command completes you should se a new folder myrouter, in this folder you wil find the configuration created for router and scripts for starting and stopping router.
+After this command completes you should see a new folder named myrouter (name can be changed with option -d above), in this folder you will find the configuration file created for router and scripts for starting and stopping router.
 
 Lets start the router:
 ```
