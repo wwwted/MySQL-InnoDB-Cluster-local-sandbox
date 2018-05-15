@@ -81,6 +81,7 @@ mysqlsh>dba.help();
 Make sure you have configured SELinux and iptables/firewalld correctly (or disable them), you will need to have openings for ports 3310, 3320, 3330, 6446, 6447, 64460, 64470, 6606 for tcp/udp.
 
 ### Create a InnoDB Cluster
+![](./img/innodb_cluster_overview.png)
 
 In this exercise when you use the sandbox commands for creating our cluster we can leverage that MySQL Shell can also create, configure and start our MySQL instances. These instances will be created underneith ~home/mysql-sandboxes and named by the port number you specify when creating your instances (in our case this will be 3310, 3320 and 3330).
 
