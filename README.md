@@ -250,7 +250,7 @@ Identify the pid of of the instance with port number equal to the primary.
 
 Lets kill the primary instance:
 ```
-bash$ kill -9 <pif of primary instance>
+bash$ kill -9 <pid of primary instance>
 ``` 
 You should see a small hickup in the output from the python application then the re-connect should have be triggered and the application should continue to work and output it's normal rows.
 
