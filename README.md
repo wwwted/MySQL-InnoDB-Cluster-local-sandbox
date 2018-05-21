@@ -8,7 +8,7 @@ Further reading:
 - https://dev.mysql.com/doc/refman/8.0/en/mysql-innodb-cluster-userguide.html
 - https://dev.mysql.com/doc/refman/8.0/en/mysql-innodb-cluster-sandbox-deployment.html
 
-This demo works for both MySQL 5.7 as well as for MySQL 8, there are some small differences that will be highlighted later on. Note that MySQL Router 8 and MySQL Shell 8 works for MySQL also and I highly recomend using latest versions of MySQL Shell and MySQL Router.
+This demo works for both MySQL 5.7 as well as for MySQL 8, there are some small differences that will be highlighted later on. Note that MySQL Router 8 and MySQL Shell 8 works for MySQL 5.7 also, I highly recomend using latest versions of MySQL Shell and MySQL Router for any deployments of InnoDB Cluster.
 
 ### Setup environment
 
