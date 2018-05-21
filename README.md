@@ -23,13 +23,13 @@ Go to into folder:
 bash$ cd MySQL-InnoDB-Cluster-local-sandbox
 ```
 Now, you need to download binaries to run InnoDB Cluster, that is MySQL Server, MySQL Shell and MySQL Router.
-If you already have downloaded the binarie packages (tar packages) you can now create softlinks to targets (server,router,shell) like:
+If you already have downloaded all MySQL packages (tar packages) you can now create softlinks to targets (server,router,shell) like:
 ```
 bash$ ln -s /path/to/binaries/mysql-server server
 bash$ ln -s /path/to/binaries/mysql-shell shell
 bash$ ln -s /path/to/binaries/mysql-router router
 ```
-If you have not dowloaded the software yet, you can download by running:
+If you have not dowloaded the software yet, you can download everything by running:
 ```
 ./scripts/download.sh
 ```
