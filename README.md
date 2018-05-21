@@ -29,7 +29,7 @@ bash$ ln -s /path/to/binaries/mysql-server server
 bash$ ln -s /path/to/binaries/mysql-shell shell
 bash$ ln -s /path/to/binaries/mysql-router router
 ```
-If you have not dowloaded the software yep, you can download by running:
+If you have not dowloaded the software yet, you can download by running:
 ```
 ./scripts/download.sh
 ```
