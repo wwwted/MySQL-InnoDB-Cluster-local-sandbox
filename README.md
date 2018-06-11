@@ -359,6 +359,11 @@ If you want to look at number of rows in the different MySQL instances during fa
 bash$ watch ./scripts/count.sh
 ```
 
+More debug information:
+```
+mysqlsh> dba.verbose=2;
+```
+
 [Commands for HA DEMO without all the explanations and text](https://gist.github.com/wwwted/f11062e47d5265ea386d6c0976cd7a06)
 
 ### Note 1) Problems running script on MySQL due to new authentication plugin (only MySQL 8)
