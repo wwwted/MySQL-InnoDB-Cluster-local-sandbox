@@ -1,4 +1,4 @@
-**[Back to Agenda](https://github.com/wwwted/MySQL-HOWTOs)**
+**[Back to MySQL HOWTO's](https://github.com/wwwted/MySQL-HOWTOs)**
 
 # MySQL InnoDB Cluster (local sandbox environment)
 ![](./img/Mysql_idc.jpg)
