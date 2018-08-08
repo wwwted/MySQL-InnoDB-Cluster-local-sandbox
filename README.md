@@ -407,7 +407,7 @@ mysql> ALTER USER 'root'@'%' IDENTIFIED WITH mysql_native_password BY 'root';
 mysql> ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'root';
 ```
 
-If you still have problems running start the MySQL client via router like:
+If you still have problems running the python script, start the MySQL client via router like:
 ```
 mysql -uroot -proot -P6446 -h127.0.0.1
 ```
