@@ -79,7 +79,7 @@ Take a look at commands available by running:
 mysqlsh>dba.help();
 ```
 
-Make sure you have configured SELinux and iptables/firewalld correctly (or disable them), you will need to have openings for ports 3310, 3320, 3330, 6446, 6447, 64460, 64470, 6606 for tcp/udp.
+Make sure you have configured SELinux and iptables/firewalld correctly (or disable them), you will need to have openings for ports 3310, 3320, 3330, 6446, 6447, 64460, 64470, 6606 for tcp/udp. More information regarding ports and MySQL can be found [here](https://mysqlserverteam.com/mysql-guide-to-ports/) 
 
 ### Create a InnoDB Cluster
 ![](./img/innodb_cluster_overview.png)
